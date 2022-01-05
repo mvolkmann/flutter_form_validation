@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: const MyHomePage(),
+      home: MyHomePage(),
     );
   }
 }
@@ -30,9 +30,13 @@ class _MyHomePageState extends State<MyHomePage> {
   var password = '';
 
   void _login() {
-    var message = _formKey.currentState!.validate()
-        ? 'Processing login ...'
-        : 'One or more fields are invalid.';
+    var valid = _formKey.currentState!.validate();
+    if (valid) {
+      print('userName = $userName');
+      print('password = $password');
+    }
+    var message =
+        valid ? 'Processing login ...' : 'One or more fields are invalid.';
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message)),
     );
@@ -40,7 +44,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    Color errorColor = Theme.of(context).errorColor;
+    //Color errorColor = Theme.of(context).errorColor;
+    Color primaryColor = Theme.of(context).primaryColor;
+
+    bool valid = _formKey.currentState?.validate() ?? false;
+    print('valid = $valid');
 
     return Scaffold(
       appBar: AppBar(
@@ -54,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               'Login',
               style: TextStyle(
-                color: errorColor,
+                color: primaryColor,
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
@@ -77,22 +85,37 @@ class _MyHomePageState extends State<MyHomePage> {
               initialValue: password,
               obscureText: true,
               onChanged: (value) => setState(() {
-                userName = value;
+                password = value;
               }),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'A password is required.';
-                }
-                return null;
-              },
+              validator: validatePassword,
             ),
             ElevatedButton(
               child: const Text('Login'),
-              onPressed: _login,
+              onPressed: valid ? _login : null,
             ),
           ],
         ),
       ),
     );
+  }
+
+  String? validatePassword(value) {
+    if (value == null || value.isEmpty) {
+      return 'A password is required.';
+    }
+    if (!RegExp(r'[A-Z]').hasMatch(value)) {
+      return 'Must contain at least one uppercase letter.';
+    }
+    if (!RegExp(r'[a-z]').hasMatch(value)) {
+      return 'Must contain at least one lowercase letter.';
+    }
+    if (!RegExp(r'[0-9]').hasMatch(value)) {
+      return 'Must contain at least one digit.';
+    }
+    // I can't get a single quote to work below.
+    if (!RegExp(r'[~@#$%^&*()\-_=+\[\]{\]}\\\|;:",<.>/?]').hasMatch(value)) {
+      return 'Must contain at least one special character.';
+    }
+    return null;
   }
 }

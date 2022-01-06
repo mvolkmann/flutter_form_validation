@@ -26,10 +26,12 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final _formKey = GlobalKey<FormState>();
 
+  String? message;
   var userName = '';
   var password = '';
 
-  void _login() {
+  void login() {
+    print('state = ${_formKey.currentState}');
     var valid = _formKey.currentState!.validate();
     if (valid) {
       print('userName = $userName');
@@ -42,13 +44,54 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  String? validatePassword(value) {
+    if (value == null || value.isEmpty) {
+      return 'A password is required.';
+    }
+    if (value.length < 8) {
+      return 'Password must contain at least eight characters.';
+    }
+    if (!RegExp(r'[A-Z]').hasMatch(value)) {
+      return 'Must contain at least one uppercase letter.';
+    }
+    if (!RegExp(r'[a-z]').hasMatch(value)) {
+      return 'Must contain at least one lowercase letter.';
+    }
+    if (!RegExp(r'[0-9]').hasMatch(value)) {
+      return 'Must contain at least one digit.';
+    }
+    // I can't get a single quote to work below.
+    if (!RegExp(r'[~@#$%^&*()\-_=+\[\]{\]}\\\|;:",<.>/?]').hasMatch(value)) {
+      return 'Must contain at least one special character.';
+    }
+    return null;
+  }
+
+  String? validateUserName(value) {
+    if (value == null || value.isEmpty) {
+      return 'User name is required.';
+    }
+    if (value.length < 4) {
+      return 'User name must be at least four characters.';
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
-    //Color errorColor = Theme.of(context).errorColor;
+    Color errorColor = Theme.of(context).errorColor;
     Color primaryColor = Theme.of(context).primaryColor;
 
+    // Could add inter-field validation here.
     bool valid = _formKey.currentState?.validate() ?? false;
-    print('valid = $valid');
+
+    // Here is an example of cross-field validation.
+    if (valid && userName == password) {
+      message = 'User name and password cannot be the same.';
+      valid = false;
+    } else {
+      message = null;
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -73,12 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
               onChanged: (value) => setState(() {
                 userName = value;
               }),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'A username is required.';
-                }
-                return null;
-              },
+              validator: validateUserName,
             ),
             MyTextField(
               labelText: 'Password',
@@ -89,33 +127,15 @@ class _MyHomePageState extends State<MyHomePage> {
               }),
               validator: validatePassword,
             ),
+            if (message != null)
+              Text(message!, style: TextStyle(color: errorColor)),
             ElevatedButton(
               child: const Text('Login'),
-              onPressed: valid ? _login : null,
+              onPressed: valid ? login : null,
             ),
           ],
         ),
       ),
     );
-  }
-
-  String? validatePassword(value) {
-    if (value == null || value.isEmpty) {
-      return 'A password is required.';
-    }
-    if (!RegExp(r'[A-Z]').hasMatch(value)) {
-      return 'Must contain at least one uppercase letter.';
-    }
-    if (!RegExp(r'[a-z]').hasMatch(value)) {
-      return 'Must contain at least one lowercase letter.';
-    }
-    if (!RegExp(r'[0-9]').hasMatch(value)) {
-      return 'Must contain at least one digit.';
-    }
-    // I can't get a single quote to work below.
-    if (!RegExp(r'[~@#$%^&*()\-_=+\[\]{\]}\\\|;:",<.>/?]').hasMatch(value)) {
-      return 'Must contain at least one special character.';
-    }
-    return null;
   }
 }

@@ -26,12 +26,11 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final _formKey = GlobalKey<FormState>();
 
-  String? message;
   var userName = '';
   var password = '';
+  String? message;
 
   void login() {
-    print('state = ${_formKey.currentState}');
     var valid = _formKey.currentState!.validate();
     if (valid) {
       print('userName = $userName');
@@ -82,7 +81,6 @@ class _MyHomePageState extends State<MyHomePage> {
     Color errorColor = Theme.of(context).errorColor;
     Color primaryColor = Theme.of(context).primaryColor;
 
-    // Could add inter-field validation here.
     bool valid = _formKey.currentState?.validate() ?? false;
 
     // Here is an example of cross-field validation.
@@ -98,7 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text('Flutter Form Validation'),
       ),
       body: Form(
-        //autovalidateMode: AutovalidateMode.onUserInteraction,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         key: _formKey,
         child: Column(
           children: <Widget>[

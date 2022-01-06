@@ -8,7 +8,7 @@ class MyTextField extends StatefulWidget {
   final String initialValue;
   final String labelText;
   final bool obscureText;
-  final void Function(String) onChanged;
+  final void Function(String)? onChanged;
   final ValidatorFn validator;
 
   const MyTextField({
@@ -18,7 +18,7 @@ class MyTextField extends StatefulWidget {
     this.labelText = '',
     this.obscureText = false,
     this.validator,
-    required this.onChanged,
+    this.onChanged,
   }) : super(key: key);
 
   @override
@@ -39,7 +39,7 @@ class _MyTextFieldState extends State<MyTextField> {
       ),
       initialValue: widget.initialValue,
       obscureText: widget.obscureText,
-      onChanged: (String value) => widget.onChanged(value),
+      onChanged: widget.onChanged,
       validator: validator,
     ).pad(10);
   }
